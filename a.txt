@@ -191,6 +191,39 @@ public class CommunityController {
         logger.info("community...deletePost success ");
         return ResultUtil.success();
     }
+    
+     @ActionMethod(serviceName = "1.3 社区首页数据")
+    @RequestMapping(value = "/home", method = RequestMethod.POST)
+    @ResponseBody
+    public Object home(@CurrentUserCached UserInfoObj userInfoObj, PageParam pageParam) {
+        Map<String, Object> returnMap = new HashMap<String, Object>();
+        returnMap.put("code", "Y");
+        returnMap.put("msg", "");
+        Integer userId = userInfoObj.getId();
+        UserObj userObj = communityUserService.queryByUserId(userId);
+        if (userObj == null) {
+            // 增加用户
+            String name = "匿名"; // 昵稱
+            String headurl = "";// 头像URL
+            try {
+                name = userInfoObj.getWechatName() != null ? userInfoObj.getWechatName() : (userInfoObj.getName() != null ? userInfoObj.getName() : name); // 昵稱
+                headurl = userInfoObj.getWechatImg() == null ? "" : userInfoObj.getWechatImg();// 头像URL
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            userObj = new UserObj();
+            userObj.setBackPicUrl("");
+            userObj.setFollow(new ArrayList<SimpleUser>());
+            userObj.setFollowCount(0);
+            userObj.setHeadurl(headurl);
+            userObj.setMsgList(new ArrayList<MsgObj>());
+            userObj.setName(name);
+            userObj.setPostCount(0);
+            userObj.setUnReadCount(0);
+            userObj.setMsgCount(0);
+            userObj.setUserId(userId);
+            communityUserService.saveOrUpdateUser(userObj);
+        }
 
     @ActionMethod(serviceName = "1.3 社区首页数据")
     @RequestMapping(value = "/home", method = RequestMethod.POST)

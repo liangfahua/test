@@ -48,6 +48,8 @@ public class CommunityController {
 
     @Reference
     private UserService userService;
+    @Reference
+    private UserService userService;
 
     @Reference
     private CommunityUserService communityUserService;

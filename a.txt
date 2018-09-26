@@ -47,7 +47,7 @@ public class CommunityController {
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     @Reference
-    private UserService a;
+    private UserService a111;
     @Reference
     private UserService c;
 

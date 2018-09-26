@@ -49,14 +49,12 @@ public class CommunityController {
     @Reference
     private UserService userService;
 
-   
+    @Reference
+    private CommunityUserService communityUserService;
 
-    @Reference
-    private PostService postService;
-    @Reference
-    private PostService postService;
-    @Reference
-    private PostService postService;
+	@Reference
+    private GroupService groupService;
+
     @Reference
     private PostService postService;
 
@@ -376,30 +374,6 @@ public class CommunityController {
         UserObj userObj = communityUserService.queryByUserId(userInfoObj.getId());
         userObj.setMsgList(new ArrayList<MsgObj>());
         communityUserService.saveOrUpdateUser(userObj);
-        return ResultUtil.success();
-    }
-    
-     @ActionMethod(serviceName = "1.12 关注/取消关注")
-    @RequestMapping(value = "/follow", method = RequestMethod.POST)
-    public Result<?> followNew(@CurrentUserCached UserInfoObj userInfoObj, Integer userId, int type) {
-    communityUserService.followNew(userInfoObj.getId(), userId, type);
-    communityUserService.followNew(userInfoObj.getId(), userId, type);
-    communityUserService.followNew(userInfoObj.getId(), userId, type);
-    communityUserService.followNew(userInfoObj.getId(), userId, type);
-    communityUserService.followNew(userInfoObj.getId(), userId, type);
-    communityUserService.followNew(userInfoObj.getId(), userId, type);
-    communityUserService.followNew(userInfoObj.getId(), userId, type);communityUserService.followNew(userInfoObj.getId(), userId, type);
-    communityUserService.followNew(userInfoObj.getId(), userId, type);
-    communityUserService.followNew(userInfoObj.getId(), userId, type);
-    communityUserService.followNew(userInfoObj.getId(), userId, type);
-        communityUserService.followNew(userInfoObj.getId(), userId, type);
-        return ResultUtil.success();
-    }
-       
-    @ActionMethod(serviceName = "1.12 关注/取消关注")
-    @RequestMapping(value = "/follow", method = RequestMethod.POST)
-    public Result<?> followNew(@CurrentUserCached UserInfoObj userInfoObj, Integer userId, int type) {
-        communityUserService.followNew(userInfoObj.getId(), userId, type);
         return ResultUtil.success();
     }
     

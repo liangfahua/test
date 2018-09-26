@@ -58,13 +58,13 @@ public class OrderServiceImpl implements OrderService{
 	private OrderDao orderadfsdfsdDao;
 	
 	@Autowired
-	private OrderDao orderaaDao;
+	private OrderDao aaa;
 
 	@Autowired
-	private PartnerDao partnerDao;
+	private PartnerDao pbbbrDao;
 	
 	@Autowired
-	private GoodsDao goodsDao;
+	private GoodsDao goodccccsDao;
 	
 	@Autowired
 	private CapitalRulesDao capitalRulesDao;

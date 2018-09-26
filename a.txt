@@ -38,7 +38,7 @@ import com.fd.provide.user.UserService;
 import com.fd.provide.user.pojo.UserInfoObj;
 
 /**
- * 朋友圈接口
+ * 朋友圈接口 master
  */
 @RestController
 @RequestMapping("/community")

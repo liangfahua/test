@@ -1,11 +1,10 @@
-e
+bb
 f
 c
+cF
 F
-cF
-cF
-cF
-cF
+c
+c
 C
 C
 C

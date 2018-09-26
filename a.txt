@@ -52,6 +52,9 @@ public class CommunityController {
     @Reference
     private CommunityUserService communityUserService;
 
+	@Reference
+    private GroupService groupService;
+
     @Reference
     private PostService postService;
 
@@ -63,10 +66,6 @@ public class CommunityController {
     public Result<?> post(
             @CurrentUserCached UserInfoObj userInfoObj, PostParam param) {
         SimpleUser author = new SimpleUser();
-
-        author.setHeadurl(userInfoObj.getWechatImg());
-        author.setName(userInfoObj.getWechatName());
-        author.setUserId(userInfoObj.getId());
 
         PostObj postObj = new PostObj();
         postObj.setAuthor(author);
@@ -367,6 +366,24 @@ public class CommunityController {
         communityUserService.followNew(userInfoObj.getId(), userId, type);
         return ResultUtil.success();
     }
+    
+    @ActionMethod(serviceName = "1.7.1 清空消息")
+    @RequestMapping(value = "/clearMsgList", method = RequestMethod.POST)
+    @ResponseBody
+    public Object clearMsgList(@CurrentUserCached UserInfoObj userInfoObj) {
+        UserObj userObj = communityUserService.queryByUserId(userInfoObj.getId());
+        userObj.setMsgList(new ArrayList<MsgObj>());
+        communityUserService.saveOrUpdateUser(userObj);
+        return ResultUtil.success();
+    }
+    
+     @ActionMethod(serviceName = "1.12 关注/取消关注")
+    @RequestMapping(value = "/follow", method = RequestMethod.POST)
+    public Result<?> followNew(@CurrentUserCached UserInfoObj userInfoObj, Integer userId, int type) {
+        communityUserService.followNew(userInfoObj.getId(), userId, type);
+        return ResultUtil.success();
+    }
+
 
 
 }

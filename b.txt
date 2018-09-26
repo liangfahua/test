@@ -55,7 +55,7 @@ public class OrderServiceImpl implements OrderService{
 	private Logger logger = LoggerFactory.getLogger(OrderServiceImpl.class);
 
 	@Autowired
-	private OrderDao orderDao;
+	private OrderDao orderaaDao;
 
 	@Autowired
 	private PartnerDao partnerDao;

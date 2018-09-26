@@ -49,10 +49,10 @@ public class CommunityController {
     @Reference
     private UserService a;
     @Reference
-    private UserService b;
+    private UserService c;
 
     @Reference
-    private CommunityUserService c;
+    private CommunityUserService d;
 
 	@Reference
     private GroupService groupService;

@@ -1,4 +1,4 @@
-cc
+test2
 cc
 c
 f

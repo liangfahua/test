@@ -137,41 +137,7 @@ public class CommunityController {
         return ResultUtil.success();
     }
     
-       @RequestMapping(value = "/post", method = RequestMethod.POST)
-    public Result<?> post(
-            @CurrentUserCached UserInfoObj userInfoObj, PostParam param) {
-        SimpleUser author = new SimpleUser();
-
-        PostObj postObj = new PostObj();
-        postObj.setAuthor(author);
-        postObj.setType(param.getType());
-        postObj.setVideourl(param.getVideourl());
-        if (StringUtils.isNotEmpty(param.getPictureurl())) {
-            List<String> pictureurl = Arrays.asList(param.getPictureurl().split(","));
-            postObj.setPictureurl(pictureurl);
-        }
-        postObj.setPostTime(System.currentTimeMillis());
-        postObj.setMsg(param.getMsg());
-        // 默认审核通过
-        postObj.setState(1);
-        postObj.setCommentCount(0);
-        postObj.setPraiseCount(0);
-        List<Integer> sendMsgUserList = new ArrayList<Integer>();
-        sendMsgUserList.add(userInfoObj.getId());
-        postObj.setSendMsgUserList(sendMsgUserList);
-        try {
-            PostObj save = postService.savePost(postObj);
-            if (save == null) {
-                return ResultUtil.error(ExceptionCommunityEnum.COMMUNITY000001.getCode(),
-                        ExceptionCommunityEnum.COMMUNITY000001.getDesc());
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResultUtil.error(ExceptionCommunityEnum.COMMUNITY000002.getCode(),
-                    ExceptionCommunityEnum.COMMUNITY000002.getDesc());
-        }
-        return ResultUtil.success();
-    }
+      
 
     @ActionMethod(serviceName = "1.2 删除帖子")
     @RequestMapping(value = "/deletePost", method = RequestMethod.POST)

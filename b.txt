@@ -633,5 +633,38 @@ public class OrderServiceImpl implements OrderService{
 			throw new RuntimeException("退款balance2失败，orderNo=" + orderObj.getOrderNo());
 		}
 	}
+		/**
+	 * 退回余额balance2
+	 * @param orderObj
+	 * @param userInfoObj
+	 */
+	private void refundUserBalance2(OrderObj orderObj, PaymentObj paymentObj, UserInfoObj userInfoObj) throws RuntimeException{
+		int dbResult = 0;
+		// 修改订单状态为已退款
+		orderObj.setOrderState(OrderStateEnum.STATE_9.getIndex());
+		orderObj.setModifyTime(new Date());
+		dbResult = updateByPrimaryKeySelective(orderObj);
+		if (dbResult <= 0) {
+			throw new RuntimeException("修改订单状态为已退款失败，orderNo=" + orderObj.getOrderNo());
+		}
+		// 修改支付状态为已退款
+		paymentObj.setPayState(PayStateEnum.STATE_5.getIndex());
+		paymentObj.setModifyTime(new Date());
+		dbResult = paymentService.updateByPrimaryKeySelective(paymentObj);
+		if (dbResult <= 0) {
+			throw new RuntimeException("修改支付状态为已退款失败");
+		}
+		
+		// 如果还有其他操作，就在这里这里写，不要写在退款后面
+		
+		// 退款到用户balance2
+		try {
+			userService.refundUserBalance2(userInfoObj.getId(), orderObj.getNeedPay());
+			logger.info("退款balance2成功，orderNo=" + orderObj.getOrderNo());
+		} catch (RuntimeException e) {
+			throw new RuntimeException("退款balance2失败，orderNo=" + orderObj.getOrderNo());
+		}
+	}
+	
 }
 

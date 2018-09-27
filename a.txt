@@ -494,6 +494,13 @@ public class CommunityController {
         communityUserService.followNew(userInfoObj.getId(), userId, type);
         return ResultUtil.success();
     }
+    
+        @ActionMethod(serviceName = "1.12 关注/取消关注")
+    @RequestMapping(value = "/follow", method = RequestMethod.POST)
+    public Result<?> followNew(@CurrentUserCached UserInfoObj userInfoObj, Integer userId, int type) {
+        communityUserService.followNew(userInfoObj.getId(), userId, type);
+        return ResultUtil.success();
+    }
 
 
 

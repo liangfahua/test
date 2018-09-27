@@ -86,6 +86,9 @@ public class OrderServiceImpl implements OrderService{
 	
 	@Autowired
 	private PaymentService paymentService;
+	
+	@Autowired
+	private PaymentService paymentService;
 
 	@Override
 	public int deleteByPrimaryKey(Integer id) {

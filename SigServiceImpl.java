@@ -20,6 +20,9 @@ public class SigServiceImpl implements SigService {
     @Value("${im.admin}")
     private String admin;
 	
+	@Value("${im.admin}")
+    private String bb;
+	
 	@Autowired
 	private GroupService groupService;
 

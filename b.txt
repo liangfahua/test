@@ -86,6 +86,9 @@ public class OrderServiceImpl implements OrderService{
 	
 	@Autowired
 	private PaymentService paymentService;
+	
+	@Autowired
+	private PaymentService paymentService;
 
 	@Override
 	public int deleteByPrimaryKey(Integer id) {
@@ -178,90 +181,7 @@ public class OrderServiceImpl implements OrderService{
 		return orderDao.updateByOrderNo(order_no);
 	}
 
-	@Override
-	@Transactional
-	public String insertOrderAndSubOrder(OrderObj record, String suborderList) throws RuntimeException{
-		logger.info("开始创建订单.........订单数据=" + JSONObject.toJSONString(record) + "，子单数据=" + suborderList);
-		try {
-			List<SuborderObj> list = new ArrayList<SuborderObj>();
-			JSONArray jsonArray =JSONArray.fromObject(suborderList);
-			list = JSONArray.toList(jsonArray,SuborderObj.class);
-			BigDecimal subTotalAmount = BigDecimal.ZERO;  //子订单总金额
-			BigDecimal goodsTotalAmount = BigDecimal.ZERO;  //商品实际总金额
-			if(list.size()>0) {
-				for(SuborderObj suborderObj : list) {
-					if(record.getOrderType()==OrderTypeEnum.TYPE_2.getIndex()){
-						PartnerObj partnerObj =partnerService.selectByPrimaryKey(suborderObj.getGoodsId());//购买的会员等级
-						//购买的是 高级合伙人  需要验证  用户是否购买第三节课
-						if(partnerObj.getPartnerNo().equals(PartnerNumEnum.NUM_7.getCode())) {
-							boolean isbuy3=false;
-							List<GoodsObj> goodsObjList = new ArrayList<>();
-							GoodsPar goodsPar = new GoodsPar();
-							goodsPar.setUserId(record.getUserId());
-							goodsObjList = goodsService.queryGoods(goodsPar);
-							if(null!=goodsObjList&&goodsObjList.size()>0) {
-								for (int i = 0; i < goodsObjList.size(); i++) {
-									GoodsObj O=goodsObjList.get(i);
-									if(O!=null){
-										if(GoodsNumEnum.NUM_3.getCode().equals(O.getGoodsNo())||GoodsNumEnum.NUMW_3.getCode().equals(O.getGoodsNo())){
-											//3. 购买了第三节课就赠送第四节课     -购买且有1-4节课顺序(既  购买了三节课的人就有1-4节课的观看权限) 
-											isbuy3=true;
-										}
-									}
-								}
-							}
-							if(!isbuy3){
-								return OrderExceptionCodeEnum.ORDERS000004.getCode();
-							}
-						}
-					}
-					
-					subTotalAmount = subTotalAmount.add(suborderObj.getNeedPay());
-					if(record.getOrderType()==OrderTypeEnum.TYPE_2.getIndex()) {//如果是合伙人
-						PartnerObj partnerObj = partnerService.selectByPrimaryKey(suborderObj.getGoodsId());
-						if(null == partnerObj) {
-							throw new RuntimeException("创建出错，商品ID不正确，合伙人不存在");
-						}
-						goodsTotalAmount = goodsTotalAmount.add(partnerObj.getUnitPrice());
-
-					}else {
-						GoodsObj goodsObj=goodsService.findByGoodId(suborderObj.getGoodsId());
-						if(null == goodsObj) {
-							throw new RuntimeException("创建出错，商品ID不正确，商品不存在");
-						}
-						//商品实际总价 = 商品单价 * 数量 + 运费
-//						goodsTotalAmount = (goodsTotalAmount.add(goodsObj.getUnitPrice().add(goodsObj.getFreightPrice())));
-						goodsTotalAmount = goodsTotalAmount.add((goodsObj.getUnitPrice().multiply(new BigDecimal(suborderObj.getNum()))).add(goodsObj.getFreightPrice()));
-					}
-				}
-				//金额验证
-				if(record.getOrderPay().compareTo(goodsTotalAmount)!=0||record.getNeedPay().compareTo(subTotalAmount)!=0) {//订单总金额是否等于商品实际总金额，订单自己支付金额是否等于子订单实际支付金额总和
-					throw new RuntimeException("创建出错，传入金额不正确");
-				}
-				if(record.getNeedPay().compareTo(BigDecimal.ZERO)==1) { //金额大于0才插入订单
-					if (insertSelective(record) <= 0) {
-						throw new RuntimeException("创建订单出错");
-					}
-					logger.info("插入订单成功");
-					for(SuborderObj suborderObj : list) {
-						suborderObj.setOrderId(record.getId());
-						suborderObj.setOrderNo(record.getOrderNo());
-						suborderObj.setUserId(record.getUserId());
-						suborderObj.setCreateTime(DateUtil.getTime1());
-						if (suborderService.insertSelective(suborderObj) <= 0) {
-							throw new RuntimeException("创建子订单出错");
-						}
-						logger.info("插入子订单成功");
-					}
-					return record.getOrderNo();
-				}
-			}	
-		}catch (Exception e) {
-			logger.error("创建订单出错" + e.getMessage());
-			throw new RuntimeException("创建订单出错" + e.getMessage());
-		}
-		return "0元订单";
-	}
+	
 
 	@Override
 	public List<OrderObj> findOrderByPar(OrderPar record) {
@@ -633,5 +553,38 @@ public class OrderServiceImpl implements OrderService{
 			throw new RuntimeException("退款balance2失败，orderNo=" + orderObj.getOrderNo());
 		}
 	}
+		/**
+	 * 退回余额balance2
+	 * @param orderObj
+	 * @param userInfoObj
+	 */
+	private void refundUserBalance2(OrderObj orderObj, PaymentObj paymentObj, UserInfoObj userInfoObj) throws RuntimeException{
+		int dbResult = 0;
+		// 修改订单状态为已退款
+		orderObj.setOrderState(OrderStateEnum.STATE_9.getIndex());
+		orderObj.setModifyTime(new Date());
+		dbResult = updateByPrimaryKeySelective(orderObj);
+		if (dbResult <= 0) {
+			throw new RuntimeException("修改订单状态为已退款失败，orderNo=" + orderObj.getOrderNo());
+		}
+		// 修改支付状态为已退款
+		paymentObj.setPayState(PayStateEnum.STATE_5.getIndex());
+		paymentObj.setModifyTime(new Date());
+		dbResult = paymentService.updateByPrimaryKeySelective(paymentObj);
+		if (dbResult <= 0) {
+			throw new RuntimeException("修改支付状态为已退款失败");
+		}
+		
+		// 如果还有其他操作，就在这里这里写，不要写在退款后面
+		
+		// 退款到用户balance2
+		try {
+			userService.refundUserBalance2(userInfoObj.getId(), orderObj.getNeedPay());
+			logger.info("退款balance2成功，orderNo=" + orderObj.getOrderNo());
+		} catch (RuntimeException e) {
+			throw new RuntimeException("退款balance2失败，orderNo=" + orderObj.getOrderNo());
+		}
+	}
+	
 }
 

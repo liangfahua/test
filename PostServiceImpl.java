@@ -41,6 +41,9 @@ public class PostServiceImpl implements PostService {
 
     @Autowired
     private UserMongodbDao userMongodbDao;
+	
+	@Autowired
+    private UserMongodbDao a;
 
     @Override
     public void discuss(PostObj postObj) {
@@ -49,21 +52,7 @@ public class PostServiceImpl implements PostService {
     @Override
     public PostObj savePost(PostObj postObj) {
         Post post = Post2PostObj.convertToPost(postObj, null);
-        if (StringUtil.isEmpty(post.getMsg())) {
-            post.setMsg("");
-        }
-        if (CollectionUtils.isEmpty(post.getPictureurl())) {
-            post.setPictureurl(new ArrayList<String>());
-        }
-        if (StringUtil.isEmpty(post.getVideourl())) {
-            post.setVideourl("");
-        }
-        if (post.getPostTime() == 0L) {
-            post.setPostTime(System.currentTimeMillis());
-        }
-        if (StringUtil.isEmpty(post.getPostPic())) {
-            post.setPostPic("");
-        }
+       
         if (post.getAuthor() == null) {
             post.setAuthor(new SimpleUser());
         }

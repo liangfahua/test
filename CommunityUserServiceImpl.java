@@ -26,6 +26,12 @@ public class CommunityUserServiceImpl implements CommunityUserService {
 	
 	@Autowired
     private UserMongodbDao mongodbDao;
+	
+	 @Autowired
+    private UserMongodbDao c;
+	
+	 @Autowired
+    private UserMongodbDao b;
     
     @Override
     public UserObj queryByUserId(int userId) {
@@ -41,6 +47,18 @@ public class CommunityUserServiceImpl implements CommunityUserService {
 
     @Override
     public List<SimpleUser> usercenterFollow(Integer userId, int pageNum, int pageSize, String name) {
+	return mongodbDao.usercenterFollow(userId, pageNum, pageSize, name);
+	return mongodbDao.usercenterFollow(userId, pageNum, pageSize, name);
+
+return mongodbDao.usercenterFollow(userId, pageNum, pageSize, name);
+return mongodbDao.usercenterFollow(userId, pageNum, pageSize, name);
+return mongodbDao.usercenterFollow(userId, pageNum, pageSize, name);
+return mongodbDao.usercenterFollow(userId, pageNum, pageSize, name);
+return mongodbDao.usercenterFollow(userId, pageNum, pageSize, name);
+return mongodbDao.usercenterFollow(userId, pageNum, pageSize, name);
+return mongodbDao.usercenterFollow(userId, pageNum, pageSize, name);
+return mongodbDao.usercenterFollow(userId, pageNum, pageSize, name);
+return mongodbDao.usercenterFollow(userId, pageNum, pageSize, name);
         return mongodbDao.usercenterFollow(userId, pageNum, pageSize, name);
     }
 

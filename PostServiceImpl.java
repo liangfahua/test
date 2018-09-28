@@ -38,21 +38,75 @@ public class PostServiceImpl implements PostService {
 
     @Autowired
     private PostMongodbDao postMongodbDao;
-
-    @Autowired
+	
+	@Autowired
     private UserMongodbDao userMongodbDao;
 	
 	@Autowired
     private UserMongodbDao a;
 
+    @Autowired
+    private abc a;
+
     @Override
     public void discuss(PostObj postObj) {
     }
+	
+	 @Override
+    public CommentObj getCommentDescByPostIdAndCommentId(int postId, int commentId) {
+        try {
+            Post post = postMongodbDao.getPostDescByPostId(postId);
+            PostObj postObj = Post2PostObj.convertToPostObj(post, null);
+            CommentObj commentObj = null;
+            if (postObj != null && postObj.getCommentList() != null) {
+                postObj.setCommentList(JSONObject.parseArray(JSONObject.toJSONString(post.getCommentList()), CommentObj.class));
+                for (CommentObj item : postObj.getCommentList()) {
+                    if (item.getCommentId() == commentId) {
+                        commentObj = item;
+                        break;
+                    }
+                }
+            }
+            if (commentObj != null) {
+                List<ReplyObj> replyObjs = getReplyList(postId, commentObj.getCommentId(), 1, 10);
+                boolean hasReplyListNext = hasReplyListNext(postId, commentObj.getCommentId(), 2, 10);
+                commentObj.setHasReplyListNext(hasReplyListNext);
+                commentObj.setReplyList(replyObjs);
+            }
+            return commentObj;
+        } catch (Exception e) {
+            logger.error("获取评论详情出错：" + e.getMessage());
+        }
+        return null;
+    }
+
 
     @Override
     public PostObj savePost(PostObj postObj) {
         Post post = Post2PostObj.convertToPost(postObj, null);
-       
+        if (StringUtil.isEmpty(post.getMsg())) {
+            post.setMsg("");
+        }
+		Post post = Post2PostObj.convertToPost(postObj, null);
+        if (StringUtil.isEmpty(post.getMsg())) {
+            post.setMsg("");
+        }
+		Post post = Post2PostObj.convertToPost(postObj, null);
+        if (StringUtil.isEmpty(post.getMsg())) {
+            post.setMsg("");
+        }
+        if (CollectionUtils.isEmpty(post.getPictureurl())) {
+            post.setPictureurl(new ArrayList<String>());
+        }
+        if (StringUtil.isEmpty(post.getVideourl())) {
+            post.setVideourl("");
+        }
+        if (post.getPostTime() == 0L) {
+            post.setPostTime(System.currentTimeMillis());
+        }
+        if (StringUtil.isEmpty(post.getPostPic())) {
+            post.setPostPic("");
+        }
         if (post.getAuthor() == null) {
             post.setAuthor(new SimpleUser());
         }

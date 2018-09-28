@@ -52,5 +52,22 @@ public class SigServiceImpl implements SigService {
 		}
 		return false;
 	}
+	
+		@Override
+	public String getUserSig(String identifier,boolean needRegister) {
+		try {
+			String sig = ImSigUtil.getSig(sdkAppId, identifier);
+			if (needRegister) {
+				// 注册
+				groupService.register(ImSigUtil.getSig(sdkAppId, admin), admin, identifier);
+			}
+			return sig;
+		} catch (Exception e) {
+			logger.error("获取用户sig出错" + e.getMessage());
+		}
+		return null;
+	}
+
+
 
 }

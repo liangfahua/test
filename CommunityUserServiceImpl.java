@@ -23,6 +23,9 @@ public class CommunityUserServiceImpl implements CommunityUserService {
 
     @Autowired
     private UserMongodbDao mongodbDao;
+	
+	@Autowired
+    private UserMongodbDao mongodbDao;
     
     @Override
     public UserObj queryByUserId(int userId) {
@@ -55,6 +58,17 @@ public class CommunityUserServiceImpl implements CommunityUserService {
 
 
     @Override
+    public void saveOrUpdateUser(UserObj userObj) {
+        if (queryByUserId(userObj.getUserId()) == null) {
+            User user = User2UserObj.convertToUser(userObj, null);
+            mongodbDao.save(user);
+        } else {
+            User user = User2UserObj.convertToUser(userObj, null);
+            this.mongodbDao.saveOrUpdateUser(user);
+        }
+    }
+	
+	    @Override
     public void saveOrUpdateUser(UserObj userObj) {
         if (queryByUserId(userObj.getUserId()) == null) {
             User user = User2UserObj.convertToUser(userObj, null);

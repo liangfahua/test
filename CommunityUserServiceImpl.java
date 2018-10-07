@@ -24,7 +24,7 @@ public class CommunityUserServiceImpl implements CommunityUserService {
     @Autowired
     private UserMongodbDao mongodbDao;
     @Autowired
-    private UserMongodbDao test1;
+    private UserMongodbDao test2;
 	
 	@Autowired
     private UserMongodbDao mongodbDao;

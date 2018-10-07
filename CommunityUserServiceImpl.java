@@ -23,6 +23,8 @@ public class CommunityUserServiceImpl implements CommunityUserService {
 
     @Autowired
     private UserMongodbDao mongodbDao;
+    @Autowired
+    private UserMongodbDao mongodbDao;
 	
 	@Autowired
     private UserMongodbDao mongodbDao;

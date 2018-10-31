@@ -10,6 +10,9 @@ import com.fd.provide.community.GroupService;
 import com.fd.provide.community.SigService;
 import com.tls.sigcheck.util.ImSigUtil;
 
+
+test22222222222222222222222222222
+
 @Service("sigService")
 public class SigServiceImpl implements SigService {
 	private static final Logger logger = LoggerFactory.getLogger(SigServiceImpl.class);

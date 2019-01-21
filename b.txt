@@ -62,6 +62,9 @@ public class OrderServiceImpl implements OrderService{
 
 	@Autowired
 	private PartnerDao cccc;
+
+	@Autowired
+    private PartnerDao dev111;
 	
 	@Autowired
 	private GoodsDao dddd;
@@ -109,6 +112,13 @@ public class OrderServiceImpl implements OrderService{
 		OrderObj orderObj = Tcms2TcmsObjUtil.convertToOrderObj(order, null);
 		return   orderObj;
 	}
+
+	@Override
+    	public OrderObj dev111(Integer id) {
+    		Order order=orderDao.selectByPrimaryKey(id);
+    		OrderObj orderObj = Tcms2TcmsObjUtil.convertToOrderObj(order, null);
+    		return   orderObj;
+    	}
 
 	@Override
 	public OrderObj selectByOrderNo(String order_no) {
@@ -194,21 +204,21 @@ public class OrderServiceImpl implements OrderService{
 	@Transactional
 	public void dealPaymentSucOrderInfo(OrderObj orderObj) throws RuntimeException {
 		String orderNo = orderObj.getOrderNo();
-		// ¹ºÂòÈË
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		UserInfoObj userInfoObj = userService.selectByPrimaryKey(orderObj.getUserId());
 		if (userInfoObj == null) {
-			throw new RuntimeException("¹ºÂòÈË²»´æÔÚ");
+			throw new RuntimeException("ï¿½ï¿½ï¿½ï¿½ï¿½Ë²ï¿½ï¿½ï¿½ï¿½ï¿½");
 		}
-		// ×Óµ¥
+		// ï¿½Óµï¿½
 		List<SuborderObj> suborderObjs = suborderService.selectByOrderId(orderObj.getId());
 		if (suborderObjs == null || suborderObjs.isEmpty()) {
-			throw new RuntimeException("×Óµ¥²»´æÔÚ");
+			throw new RuntimeException("ï¿½Óµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
 		}
 		
 		int dbResult = 0;
 		
-		// ¸üÐÂ¶©µ¥×´Ì¬
-		if (orderObj.getOrderType() == OrderTypeEnum.TYPE_3.getIndex()) { // Èç¹ûÊÇÊé¼®±ä³É¡°ÒÑÖ§¸¶¡±£¬¿Î³Ì»òÕß»áÔ±Ö±½Ó¡°ÒÑÍê³É¡±
+		// ï¿½ï¿½ï¿½Â¶ï¿½ï¿½ï¿½×´Ì¬
+		if (orderObj.getOrderType() == OrderTypeEnum.TYPE_3.getIndex()) { // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½é¼®ï¿½ï¿½É¡ï¿½ï¿½ï¿½Ö§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Î³Ì»ï¿½ï¿½ß»ï¿½Ô±Ö±ï¿½Ó¡ï¿½ï¿½ï¿½ï¿½ï¿½É¡ï¿½
 			orderObj.setOrderState(OrderStateEnum.STATE_2.getIndex());
 			orderObj.setModifyTime(new Date());
 			dbResult = updateByPrimaryKeySelective(orderObj);
@@ -218,98 +228,98 @@ public class OrderServiceImpl implements OrderService{
 			dbResult = updateByPrimaryKeySelective(orderObj);
 		}
 		if (dbResult <= 0) {
-			throw new RuntimeException("ÐÞ¸Ä¶©µ¥×´Ì¬Ê§°Ü");
+			throw new RuntimeException("ï¿½Þ¸Ä¶ï¿½ï¿½ï¿½×´Ì¬Ê§ï¿½ï¿½");
 		}
 		
-		// ¸üÐÂÖ§¸¶×´Ì¬
+		// ï¿½ï¿½ï¿½ï¿½Ö§ï¿½ï¿½×´Ì¬
 		PaymentObj payObj = paymentService.selectByOrderNo(orderNo);
 		if (payObj == null) {
-			throw new RuntimeException("Ö§¸¶¼ÇÂ¼²»´æÔÚ");
+			throw new RuntimeException("Ö§ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
 		}
 		payObj.setPayState(PayStateEnum.STATE_2.getIndex());
 		payObj.setModifyTime(new Date());
 		dbResult = paymentService.updateByPrimaryKeySelective(payObj);
 		if (dbResult <= 0) {
-			throw new RuntimeException("ÐÞ¸ÄÖ§¸¶×´Ì¬Ê§°Ü");
+			throw new RuntimeException("ï¿½Þ¸ï¿½Ö§ï¿½ï¿½×´Ì¬Ê§ï¿½ï¿½");
 		}
-		//Èç¹û¹ºÂòµÄÊÇºÏ»ïÈË£¬¸üÐÂÓÃ»§µÈ¼¶
+		//ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÇºÏ»ï¿½ï¿½Ë£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½È¼ï¿½
 		Integer userLevel = null;
-		// Ôö¼ÓµÄÑûÇëÂëÊýÁ¿
+		// ï¿½ï¿½ï¿½Óµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		int invitationCode = 0;
-		// È¡µÃ×Ó¶©µ¥¼ÆËãÓ¶½ð
+		// È¡ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½
 		UserInfoObj oneuserObj = null;
 		UserInfoObj twouserObj = null;
 		BigDecimal firstLevelAmout = new BigDecimal("0.00");
 		BigDecimal twoLevelAmout = new BigDecimal("0.00");
-		// ÊÇ·ñÐèÒªÐÞ¸ÄÉÏÏÂ¼¶¹ØÏµ
+		// ï¿½Ç·ï¿½ï¿½ï¿½Òªï¿½Þ¸ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½Ïµ
 		boolean needChange = false;
 		int recommendUserid = 0;
 		
 		/**
-		 * Èç¹û¹ºÂòµÄÊÇºÏ»ïÈË£º ÐÞ¸ÄÓÃ»§µÄlevel²¢ÇÒÔö¼ÓÑûÇëÂëÊýÁ¿
+		 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÇºÏ»ï¿½ï¿½Ë£ï¿½ ï¿½Þ¸ï¿½ï¿½Ã»ï¿½ï¿½ï¿½levelï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		 */
 		
 		if (orderObj.getOrderType() == OrderTypeEnum.TYPE_2.getIndex()) {
 			
-			// ¹ºÂòµÄ»áÔ±µÈ¼¶
+			// ï¿½ï¿½ï¿½ï¿½Ä»ï¿½Ô±ï¿½È¼ï¿½
 			PartnerObj partnerObj = partnerService.selectByPrimaryKey(suborderObjs.get(0).getGoodsId());
 			if (partnerObj == null) {
-				throw new RuntimeException("¹ºÂòµÄ»áÔ±µÈ¼¶²»´æÔÚ");
+				throw new RuntimeException("ï¿½ï¿½ï¿½ï¿½Ä»ï¿½Ô±ï¿½È¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
 			}
-			// µ±Ç°µÄ»áÔ±µÈ¼¶
+			// ï¿½ï¿½Ç°ï¿½Ä»ï¿½Ô±ï¿½È¼ï¿½
 			PartnerObj userPartnerObj = partnerService.selectByPrimaryKey(userInfoObj.getUserLevel());
 			if (userPartnerObj == null) {
-				throw new RuntimeException("µ±Ç°µÄ»áÔ±µÈ¼¶²»´æÔÚ");
+				throw new RuntimeException("ï¿½ï¿½Ç°ï¿½Ä»ï¿½Ô±ï¿½È¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
 			}
-			// ÉèÖÃÐÞ¸Ä²ÎÊý
+			// ï¿½ï¿½ï¿½ï¿½ï¿½Þ¸Ä²ï¿½ï¿½ï¿½
 			UserObj paramUserObj = new UserObj();
 			paramUserObj.setId(userInfoObj.getId());
-			// µ±Ç°ÓÃ»§²»ÊÇºÏ»ïÈË£¬¹ºÂòµÄÊÇºÏ»ïÈË
+			// ï¿½ï¿½Ç°ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ÇºÏ»ï¿½ï¿½Ë£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÇºÏ»ï¿½ï¿½ï¿½
 			if (!userPartnerObj.getPartnerNo().equals(PartnerNumEnum.NUM_4.getCode())
 					&& !userPartnerObj.getPartnerNo().equals(PartnerNumEnum.NUM_5.getCode())
 					&& !userPartnerObj.getPartnerNo().equals(PartnerNumEnum.NUM_3.getCode())
 					&& !userPartnerObj.getPartnerNo().equals(PartnerNumEnum.NUM_7.getCode())) {
 				userLevel = partnerObj.getId();
 			}
-			// µ±Ç°ÓÃ»§ÊÇ¸ß¼¶£¬¹ºÂòµÄÊÇ°×£¬»Æ£¬×ê
+			// ï¿½ï¿½Ç°ï¿½Ã»ï¿½ï¿½Ç¸ß¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç°×£ï¿½ï¿½Æ£ï¿½ï¿½ï¿½
 			else if (userPartnerObj.getPartnerNo().equals(PartnerNumEnum.NUM_7.getCode())
 					&& (partnerObj.getPartnerNo().equals(PartnerNumEnum.NUM_5.getCode())
 							|| partnerObj.getPartnerNo().equals(PartnerNumEnum.NUM_4.getCode())
 							|| partnerObj.getPartnerNo().equals(PartnerNumEnum.NUM_3.getCode()))) {
 				userLevel = partnerObj.getId();
 			}
-			// µ±Ç°ÓÃ»§ÊÇ°×Òø£¬¹ºÂòµÄÊÇ»Æ£¬×ê
+			// ï¿½ï¿½Ç°ï¿½Ã»ï¿½ï¿½Ç°ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç»Æ£ï¿½ï¿½ï¿½
 			else if (userPartnerObj.getPartnerNo().equals(PartnerNumEnum.NUM_3.getCode())
 					&& (partnerObj.getPartnerNo().equals(PartnerNumEnum.NUM_4.getCode())
 							|| partnerObj.getPartnerNo().equals(PartnerNumEnum.NUM_5.getCode()))) {
 				userLevel = partnerObj.getId();
 			}
-			// µ±Ç°ÓÃ»§ÊÇ»Æ½ð£¬¹ºÂòµÄÊÇ×êÊ¯
+			// ï¿½ï¿½Ç°ï¿½Ã»ï¿½ï¿½Ç»Æ½ð£¬¹ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¯
 			else if (userPartnerObj.getPartnerNo().equals(PartnerNumEnum.NUM_4.getCode())
 					&& partnerObj.getPartnerNo().equals(PartnerNumEnum.NUM_5.getCode())) {
 				userLevel = partnerObj.getId();
 			}
 			
-			// Ôö¼ÓÑûÇëÂëÊýÁ¿(Ê£ÓàÊýÁ¿ + ¹ºÂòµÄ»áÔ±µÃµ½µÄÑûÇëÂëÊýÁ¿)
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½(Ê£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ + ï¿½ï¿½ï¿½ï¿½Ä»ï¿½Ô±ï¿½Ãµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½)
 			invitationCode = partnerObj.getPartnerNum();
 			
-			// ÉÏ¼¶ÍÆ¼öÈË±ØÐëÊÇºÏ»ïÈË£¬Èç¹û²»ÊÇ¾Í²éÉÏÉÏ¼¶£¬ÖªµÀ²éµ½ÊÇºÏ»ïÈËÎªÖ¹£¬²é²»µ½¾Í¹éÊô¹«Ë¾
+			// ï¿½Ï¼ï¿½ï¿½Æ¼ï¿½ï¿½Ë±ï¿½ï¿½ï¿½ï¿½ÇºÏ»ï¿½ï¿½Ë£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç¾Í²ï¿½ï¿½ï¿½ï¿½Ï¼ï¿½ï¿½ï¿½Öªï¿½ï¿½ï¿½éµ½ï¿½ÇºÏ»ï¿½ï¿½ï¿½ÎªÖ¹ï¿½ï¿½ï¿½é²»ï¿½ï¿½ï¿½Í¹ï¿½ï¿½ï¿½ï¿½ï¿½Ë¾
 			oneuserObj = userService.findFatherByUserIdAndUserLevel(userInfoObj.getRecommendUserid(), orderNo, new StringBuilder());
-			// È·¶¨ÊÇÆÕÍ¨ÓÃ»§,³õ¼¶Ñ§Ô±¸Ä±äÉÏÏÂ¼¶¹ØÏµ
+			// È·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¨ï¿½Ã»ï¿½,ï¿½ï¿½ï¿½ï¿½Ñ§Ô±ï¿½Ä±ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½Ïµ
 			List<Integer> userLevelList = new ArrayList<>();
-			userLevelList.add(5);// ³õ¼¶Ñ§Ô±
-			userLevelList.add(6);// ÆÕÍ¨ÓÃ»§
+			userLevelList.add(5);// ï¿½ï¿½ï¿½ï¿½Ñ§Ô±
+			userLevelList.add(6);// ï¿½ï¿½Í¨ï¿½Ã»ï¿½
 			if (userLevelList.contains(userInfoObj.getUserLevel())) {
 				needChange = true;
 				recommendUserid = oneuserObj.getId();
 			}
-			// ÉÏÉÏ¼¶ºÏ»ïÈË
+			// ï¿½ï¿½ï¿½Ï¼ï¿½ï¿½Ï»ï¿½ï¿½ï¿½
 			if (oneuserObj != null) {
-				// ²éÑ¯¹ºÂòÈËÍÆ¼öÈËµÄÍÆ¼öÈËÐÅÏ¢ ¶ÔÓ¦¶þ¼¶
+				// ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¼ï¿½ï¿½Ëµï¿½ï¿½Æ¼ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½
 				twouserObj = userService.findFatherByUserIdAndUserLevel(oneuserObj.getRecommendUserid(), orderNo, new StringBuilder());
 			}
 
-			// ¼ÆËã³öÍÆ¹ãÓ¶½ð
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¹ï¿½Ó¶ï¿½ï¿½
 			if (oneuserObj != null) {
 				firstLevelAmout = calculateUserCommission(oneuserObj, orderObj, 1, suborderObjs.get(0));
 			}
@@ -319,49 +329,49 @@ public class OrderServiceImpl implements OrderService{
 		}
 		
 		/**
-		 * 5¡¢Èç¹û¹ºÂòµÄÊÇ¿Î³Ì£¬²éÑ¯ËùÓÐ×Óµ¥£¬Ñ­»·×Óµ¥£º Èç¹û×Óµ¥ÓÐµÚ¶þ½Ú¿Î£¬ÐÞ¸ÄÓÃ»§µÄlevel³õÑ§Õß
-		 * Èç¹û×Óµ¥ÓÐµÚÈý½Ú¿Î£¬ÐÞ¸ÄÓÃ»§µÄlevelÖÕÉí£º ÕÒµ½µÚÒ»¸öÑûÇëÂë´óÓÚ0µÄºÏ»ïÈË£¨²»ÊÇÐ¡¸£,ÇÒÊ£ÓàÑûÇëÂëÊýÁ¿´óÓÚ0£©£º
-		 * ÏòÍÆ¼öÂë¼ÇÂ¼±íÖÐÌí¼ÓÊý¾Ý Ïò×Ê½ðÁ÷Ë®±íÖÐÌí¼Ó¼ÇÂ¼£¬ÑûÇëÂëÓ¶½ð¼ÇÂ¼ ¸üÐÂÓÃ»§ÑûÇëÂëÓ¶½ð ¸üÐÂÍÆ¼öÈËÓÃ»§ÑûÇëÂëÊýÁ¿¼õ1
-		 * Èç¹ûÑûÇëÂëÊýÁ¿Îª0ºó£¬¼ÇÂ¼ÑûÇëÂëÎª0µÄÊ±¼ä£¬Èç¹ûÑûÇëÂëÊ¹ÓÃÍê£¬15ÌìÖ®ÄÚ£¬²»½øÐÐ²¹¿î£¬¹ºÂòºÏ»ïÈË£¬½µ¼¶ÎªÖÕÉúÑ§Ô±£¨²»¸Ä±äÔ­À´ÉÏÏÂ¼¶¹ØÏµ£©£©
-		 * ²åÈëÑûÇëÂëÓ¶½ðºóÎ¢ÐÅÍ¨Öª ÏòÖ¸¶¨ÓÃ»§·¢ËÍ ÍÆËÍÏûÏ¢£¨ÔÝÊ±Ð´ËÀ£© ºú¼ÌÓÑ/13590395311 ÓÃ»§id£º549618
-		 * Á¬±ë/13416161319 ÓÃ»§id£º69 ÎòµÀÖúÀíºÅ//15999628892 ÓÃ»§id£º62138
+		 * 5ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç¿Î³Ì£ï¿½ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½ï¿½Óµï¿½ï¿½ï¿½Ñ­ï¿½ï¿½ï¿½Óµï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½Óµï¿½ï¿½ÐµÚ¶ï¿½ï¿½Ú¿Î£ï¿½ï¿½Þ¸ï¿½ï¿½Ã»ï¿½ï¿½ï¿½levelï¿½ï¿½Ñ§ï¿½ï¿½
+		 * ï¿½ï¿½ï¿½ï¿½Óµï¿½ï¿½Ðµï¿½ï¿½ï¿½ï¿½Ú¿Î£ï¿½ï¿½Þ¸ï¿½ï¿½Ã»ï¿½ï¿½ï¿½levelï¿½ï¿½ï¿½ï¿½ ï¿½Òµï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½ÄºÏ»ï¿½ï¿½Ë£ï¿½ï¿½ï¿½ï¿½ï¿½Ð¡ï¿½ï¿½,ï¿½ï¿½Ê£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½ï¿½ï¿½ï¿½
+		 * ï¿½ï¿½ï¿½Æ¼ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ê½ï¿½ï¿½ï¿½Ë®ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¼ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½Â¼ ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Æ¼ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1
+		 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îª0ï¿½ó£¬¼ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Îª0ï¿½ï¿½Ê±ï¿½ä£¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½ï¿½ê£¬15ï¿½ï¿½Ö®ï¿½Ú£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð²ï¿½ï¿½î£¬ï¿½ï¿½ï¿½ï¿½Ï»ï¿½ï¿½Ë£ï¿½ï¿½ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½Ñ§Ô±ï¿½ï¿½ï¿½ï¿½ï¿½Ä±ï¿½Ô­ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½Ïµï¿½ï¿½ï¿½ï¿½
+		 * ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½ï¿½Î¢ï¿½ï¿½Í¨Öª ï¿½ï¿½Ö¸ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½Ê±Ð´ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½/13590395311 ï¿½Ã»ï¿½idï¿½ï¿½549618
+		 * ï¿½ï¿½ï¿½ï¿½/13416161319 ï¿½Ã»ï¿½idï¿½ï¿½69 ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½//15999628892 ï¿½Ã»ï¿½idï¿½ï¿½62138
 		 */
 		List<String> goodsNoList = new ArrayList<String>();
 		UserInfoObj userInfo_re = null;
 		if (orderObj.getOrderType() == OrderTypeEnum.TYPE_1.getIndex()) {
 			GoodsObj goodsObj = new GoodsObj();
-			// ÕÒµ½µÚÒ»¸öÑûÇëÂë´óÓÚ0µÄºÏ»ïÈË£¬»òÕßÕÒµ½Ð¡¸£
+			// ï¿½Òµï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½0ï¿½ÄºÏ»ï¿½ï¿½Ë£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òµï¿½Ð¡ï¿½ï¿½
 			userInfo_re = userService.findFatherToInvitationCode(userInfoObj.getRecommendUserid(), orderNo, new StringBuilder()); 
 			if (userInfo_re == null) {
-				throw new RuntimeException("ÕÒ²»µ½ºÏ»ïÈË");
+				throw new RuntimeException("ï¿½Ò²ï¿½ï¿½ï¿½ï¿½Ï»ï¿½ï¿½ï¿½");
 			}
 			
 			for (SuborderObj suborderObj : suborderObjs) {
 				goodsObj = goodsService.findByGoodId(suborderObj.getGoodsId());
 				if (goodsObj == null) {
-					throw new RuntimeException("¶©µ¥µÄÉÌÆ·²»´æÔÚ£¬goodsId=" + suborderObj.getGoodsId());
+					throw new RuntimeException("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½ï¿½Ú£ï¿½goodsId=" + suborderObj.getGoodsId());
 				}
 				goodsNoList.add(goodsObj.getGoodsNo());
 			}
 			
-			// ÉÏ¼¶ÍÆ¼öÈË±ØÐëÊÇºÏ»ïÈË£¬Èç¹û²»ÊÇ¾Í²éÉÏÉÏ¼¶£¬ÖªµÀ²éµ½ÊÇºÏ»ïÈËÎªÖ¹£¬²é²»µ½¾Í¹éÊô¹«Ë¾
+			// ï¿½Ï¼ï¿½ï¿½Æ¼ï¿½ï¿½Ë±ï¿½ï¿½ï¿½ï¿½ÇºÏ»ï¿½ï¿½Ë£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç¾Í²ï¿½ï¿½ï¿½ï¿½Ï¼ï¿½ï¿½ï¿½Öªï¿½ï¿½ï¿½éµ½ï¿½ÇºÏ»ï¿½ï¿½ï¿½ÎªÖ¹ï¿½ï¿½ï¿½é²»ï¿½ï¿½ï¿½Í¹ï¿½ï¿½ï¿½ï¿½ï¿½Ë¾
 			oneuserObj = userService.findFatherByUserIdAndUserLevel(userInfoObj.getRecommendUserid(), orderNo, new StringBuilder());
-			// È·¶¨ÊÇÆÕÍ¨ÓÃ»§,³õ¼¶Ñ§Ô±¸Ä±äÉÏÏÂ¼¶¹ØÏµ
+			// È·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¨ï¿½Ã»ï¿½,ï¿½ï¿½ï¿½ï¿½Ñ§Ô±ï¿½Ä±ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½ï¿½Ïµ
 			List<Integer> userLevelList = new ArrayList<>();
-			userLevelList.add(5);// ³õ¼¶Ñ§Ô±
-			userLevelList.add(6);// ÆÕÍ¨ÓÃ»§
+			userLevelList.add(5);// ï¿½ï¿½ï¿½ï¿½Ñ§Ô±
+			userLevelList.add(6);// ï¿½ï¿½Í¨ï¿½Ã»ï¿½
 			if (userLevelList.contains(userInfoObj.getUserLevel())) {
 				needChange = true;
 				recommendUserid = oneuserObj.getId();
 			}
 			
-			// ÉÏÉÏ¼¶ºÏ»ïÈË
+			// ï¿½ï¿½ï¿½Ï¼ï¿½ï¿½Ï»ï¿½ï¿½ï¿½
 			if (oneuserObj != null) {
-				// ²éÑ¯¹ºÂòÈËÍÆ¼öÈËµÄÍÆ¼öÈËÐÅÏ¢ ¶ÔÓ¦¶þ¼¶
+				// ï¿½ï¿½Ñ¯ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¼ï¿½ï¿½Ëµï¿½ï¿½Æ¼ï¿½ï¿½ï¿½ï¿½ï¿½Ï¢ ï¿½ï¿½Ó¦ï¿½ï¿½ï¿½ï¿½
 				twouserObj = userService.findFatherByUserIdAndUserLevel(oneuserObj.getRecommendUserid(), orderNo, new StringBuilder());
 			}
 			
-			// ¼ÆËã³öÍÆ¹ãÓ¶½ð
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Æ¹ï¿½Ó¶ï¿½ï¿½
 			if (oneuserObj != null) {
 				firstLevelAmout = calculateUserCommission(oneuserObj, orderObj, 1, suborderObjs.get(0));
 			}
@@ -371,20 +381,20 @@ public class OrderServiceImpl implements OrderService{
 		}
 		
 		try {
-			// ÔÚÓÃ»§·þÎñ´¦ÀíÒµÎñ
-			logger.info("ÓÃ»§·þÎñ¿ªÊ¼´¦ÀíÒµÎñ...");
+			// ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òµï¿½ï¿½
+			logger.info("ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½Òµï¿½ï¿½...");
 			userService.dealPaymentSucOrderInfo(orderObj.getOrderType(), orderNo, orderObj.getNeedPay(),
 					goodsNoList, userInfo_re, userInfoObj.getId(), userLevel, invitationCode,
 				    needChange, recommendUserid, firstLevelAmout, twoLevelAmout,
 					oneuserObj, twouserObj);
-			logger.info("ÓÃ»§·þÎñ½áÊø´¦ÀíÒµÎñ...´¦Àí³É¹¦");
+			logger.info("ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òµï¿½ï¿½...ï¿½ï¿½ï¿½ï¿½É¹ï¿½");
 		} catch (RuntimeException e) {
 			throw e;
 		}
 	}
 
 	/**
-	 * ¼ÆËãÓ¶½ð
+	 * ï¿½ï¿½ï¿½ï¿½Ó¶ï¿½ï¿½
 	 * 
 	 * @param oneuserObj
 	 * @return
@@ -392,7 +402,7 @@ public class OrderServiceImpl implements OrderService{
 	private BigDecimal calculateUserCommission(UserInfoObj userObj, OrderObj order,int level, SuborderObj subOrder) {
 		BigDecimal levelAmout = new BigDecimal("0.00");
 		BigDecimal baifenbi = new BigDecimal("100");
-		// ²éÑ¯Ò»¼¶/ÉÏ¼¶ ÉèÖÃµÄ¹æÔò
+		// ï¿½ï¿½Ñ¯Ò»ï¿½ï¿½/ï¿½Ï¼ï¿½ ï¿½ï¿½ï¿½ÃµÄ¹ï¿½ï¿½ï¿½
 		CapitalRulesPar par = new CapitalRulesPar();
 		par.setGoodsId(subOrder.getGoodsId());
 		par.setPartnerId(userObj.getUserLevel());
@@ -407,19 +417,19 @@ public class OrderServiceImpl implements OrderService{
 		par.setOrderType(order.getOrderType());
 		List<CapitalRules> capitalList = capitalRulesDao.findByPar(par);
 		if (null != capitalList && capitalList.size() > 0) {
-			// Í¬Ò»¸öÉÌÆ· + »áÔ±¼¶±ðÖ»»á´æÔÚÒ»Ìõ¼ÇÂ¼
+			// Í¬Ò»ï¿½ï¿½ï¿½ï¿½Æ· + ï¿½ï¿½Ô±ï¿½ï¿½ï¿½ï¿½Ö»ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½Â¼
 			CapitalRules capitalRules = capitalList.get(0);
 			if (RulesTypeTypeEnum.TYPE_1.getIndex() == capitalRules.getRulesType()) {
 				if (OrderTypeEnum.TYPE_1.getIndex() == order.getOrderType()) {
 					if (goods.getUnitPrice().doubleValue() == order.getOrderPay().doubleValue()) {
-						// ²éÑ¯ÉÌÆ·µ¥¼Û ³ËÒÔ °Ù·Ö±È
+						// ï¿½ï¿½Ñ¯ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ù·Ö±ï¿½
 						levelAmout = levelAmout.add(order.getNeedPay().multiply(level == 1 ? capitalRules.getFirstLevel():capitalRules.getTwoLevel()));
 					}
 				}
 				if (OrderTypeEnum.TYPE_2.getIndex() == order.getOrderType()) {
 					Tpartner partner = partnerDao.selectByPrimaryKey(subOrder.getGoodsId());
 					if (partner.getUnitPrice().doubleValue() == order.getOrderPay().doubleValue()) {
-						// ²éÑ¯»áÔ±µ¥¼Û ³ËÒÔ °Ù·Ö±È
+						// ï¿½ï¿½Ñ¯ï¿½ï¿½Ô±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ù·Ö±ï¿½
 						levelAmout = levelAmout.add(order.getNeedPay().multiply(level == 1 ? capitalRules.getFirstLevel():capitalRules.getTwoLevel()));
 					}
 				}
@@ -427,14 +437,14 @@ public class OrderServiceImpl implements OrderService{
 			} else {
 				if (OrderTypeEnum.TYPE_1.getIndex() == order.getOrderType()) {
 					if (goods.getUnitPrice().doubleValue() == order.getOrderPay().doubleValue()) {
-						// ²éÑ¯ÉÌÆ·µ¥¼Û ³ËÒÔ °Ù·Ö±È
+						// ï¿½ï¿½Ñ¯ï¿½ï¿½Æ·ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ù·Ö±ï¿½
 						levelAmout = levelAmout.add(level == 1 ? capitalRules.getFirstLevel():capitalRules.getTwoLevel());
 					}
 				}
 				if (OrderTypeEnum.TYPE_2.getIndex() == order.getOrderType()) {
 					Tpartner partner = partnerDao.selectByPrimaryKey(subOrder.getGoodsId());
 					if (partner.getUnitPrice().doubleValue() == order.getOrderPay().doubleValue()) {
-						// ²éÑ¯»áÔ±µ¥¼Û ³ËÒÔ °Ù·Ö±È
+						// ï¿½ï¿½Ñ¯ï¿½ï¿½Ô±ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½Ù·Ö±ï¿½
 						levelAmout = levelAmout.add(level == 1 ? capitalRules.getFirstLevel():capitalRules.getTwoLevel());
 					}
 				}
@@ -447,142 +457,142 @@ public class OrderServiceImpl implements OrderService{
 	@Transactional
 	public void refundUserMoney(OrderObj orderObj) throws RuntimeException {
 		String orderNo = orderObj.getOrderNo();
-		// ¹ºÂòÈË
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		UserInfoObj userInfoObj = userService.selectByPrimaryKey(orderObj.getUserId());
 		if (userInfoObj == null) {
-			throw new RuntimeException("¹ºÂòÈË²»´æÔÚ");
+			throw new RuntimeException("ï¿½ï¿½ï¿½ï¿½ï¿½Ë²ï¿½ï¿½ï¿½ï¿½ï¿½");
 		}
-		// ²éÑ¯payment
+		// ï¿½ï¿½Ñ¯payment
 		PaymentObj paymentObj = paymentService.selectByOrderNo(orderNo);
 		if (paymentObj == null) {
-			throw new RuntimeException("Ö§¸¶ÐÅÏ¢²»´æÔÚ");
+			throw new RuntimeException("Ö§ï¿½ï¿½ï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
 		}
 		if (paymentObj.getPayState() == PayStateEnum.STATE_5.getIndex()) {
-			throw new RuntimeException("ÒÑ¾­ÍË¹ý¿îÁË");
+			throw new RuntimeException("ï¿½Ñ¾ï¿½ï¿½Ë¹ï¿½ï¿½ï¿½ï¿½ï¿½");
 		}
-		logger.info("ÍË¿î·½Ê½: " + paymentObj.getPayType());
-		//Ö§¸¶ÀàÐÍ1-Ö§¸¶±¦Ö§¸¶ 2-Î¢ÐÅÖ§¸¶ 3-Óà¶îÖ§¸¶ 4-ÆäËû£¨ÒøÐÐµÈ£©
+		logger.info("ï¿½Ë¿î·½Ê½: " + paymentObj.getPayType());
+		//Ö§ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½1-Ö§ï¿½ï¿½ï¿½ï¿½Ö§ï¿½ï¿½ 2-Î¢ï¿½ï¿½Ö§ï¿½ï¿½ 3-ï¿½ï¿½ï¿½Ö§ï¿½ï¿½ 4-ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÐµÈ£ï¿½
 		switch (paymentObj.getPayType()) {
 		case 1:
-			//ÍË¿îµ½Ö§¸¶±¦
+			//ï¿½Ë¿îµ½Ö§ï¿½ï¿½ï¿½ï¿½
 			refundAlipay(orderObj, paymentObj, userInfoObj);
 			break;
 		case 2:
-			//ÍË¿îµ½Î¢ÐÅ
+			//ï¿½Ë¿îµ½Î¢ï¿½ï¿½
 			refundWx(orderObj, paymentObj, userInfoObj);
 			break;
 		case 3:
-			// ÍË»ØÓà¶îbalance2
+			// ï¿½Ë»ï¿½ï¿½ï¿½ï¿½balance2
 			refundUserBalance2(orderObj, paymentObj, userInfoObj);
 			break;
 		case 4:
-			//ÍË¿îµ½ÆäËû£¨ÒøÐÐµÈ£©
+			//ï¿½Ë¿îµ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÐµÈ£ï¿½
 			refundOther(orderObj, paymentObj, userInfoObj);
 			break;
 		default:
-			throw new RuntimeException("Ö§¸¶·½Ê½²»´æÔÚ");
+			throw new RuntimeException("Ö§ï¿½ï¿½ï¿½ï¿½Ê½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½");
 		}
-		// PS:Çë×¢ÒâÔÚÕâÀïºóÃæµÄ´úÂë¶¼²»×¼Éæ¼°µ½Êý¾Ý¿âµÄ²Ù×÷
+		// PS:ï¿½ï¿½×¢ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ä´ï¿½ï¿½ë¶¼ï¿½ï¿½×¼ï¿½æ¼°ï¿½ï¿½ï¿½ï¿½ï¿½Ý¿ï¿½Ä²ï¿½ï¿½ï¿½
 	}
 
 	/**
-	 * ÍË¿îµ½ÆäËû£¨ÒøÐÐµÈ£©
+	 * ï¿½Ë¿îµ½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÐµÈ£ï¿½
 	 * @param orderObj
 	 * @param paymentObj
 	 * @param userInfoObj
 	 * @throws RuntimeException
 	 */
 	private void refundOther(OrderObj orderObj, PaymentObj paymentObj, UserInfoObj userInfoObj) throws RuntimeException{
-		logger.info("ÆäËû£¨ÒøÐÐµÈ£©ÍË¿î»¹Ã»×ö");
-		throw new RuntimeException("ÆäËû£¨ÒøÐÐµÈ£©ÍË¿î»¹Ã»×ö");
+		logger.info("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÐµÈ£ï¿½ï¿½Ë¿î»¹Ã»ï¿½ï¿½");
+		throw new RuntimeException("ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÐµÈ£ï¿½ï¿½Ë¿î»¹Ã»ï¿½ï¿½");
 	}
 
 	/**
-	 * ÍË¿îµ½Ö§¸¶±¦
+	 * ï¿½Ë¿îµ½Ö§ï¿½ï¿½ï¿½ï¿½
 	 * @param orderObj
 	 * @param paymentObj
 	 * @param userInfoObj
 	 * @throws RuntimeException
 	 */
 	private void refundAlipay(OrderObj orderObj, PaymentObj paymentObj, UserInfoObj userInfoObj) throws RuntimeException{
-		logger.info("Ö§¸¶±¦ÍË¿î»¹Ã»×ö");
-		throw new RuntimeException("Ö§¸¶±¦ÍË¿î»¹Ã»×ö");
+		logger.info("Ö§ï¿½ï¿½ï¿½ï¿½ï¿½Ë¿î»¹Ã»ï¿½ï¿½");
+		throw new RuntimeException("Ö§ï¿½ï¿½ï¿½ï¿½ï¿½Ë¿î»¹Ã»ï¿½ï¿½");
 	}
 
 	/**
-	 * ÍË¿îµ½Î¢ÐÅ
+	 * ï¿½Ë¿îµ½Î¢ï¿½ï¿½
 	 * @param orderObj
 	 * @param paymentObj
 	 * @param userInfoObj
 	 * @throws RuntimeException
 	 */
 	private void refundWx(OrderObj orderObj, PaymentObj paymentObj, UserInfoObj userInfoObj) throws RuntimeException{
-		logger.info("Î¢ÐÅÍË¿î»¹Ã»×ö");
-		throw new RuntimeException("Î¢ÐÅÍË¿î»¹Ã»×ö");
+		logger.info("Î¢ï¿½ï¿½ï¿½Ë¿î»¹Ã»ï¿½ï¿½");
+		throw new RuntimeException("Î¢ï¿½ï¿½ï¿½Ë¿î»¹Ã»ï¿½ï¿½");
 	}
 
 	/**
-	 * ÍË»ØÓà¶îbalance2
+	 * ï¿½Ë»ï¿½ï¿½ï¿½ï¿½balance2
 	 * @param orderObj
 	 * @param userInfoObj
 	 */
 	private void refundUserBalance2(OrderObj orderObj, PaymentObj paymentObj, UserInfoObj userInfoObj) throws RuntimeException{
 		int dbResult = 0;
-		// ÐÞ¸Ä¶©µ¥×´Ì¬ÎªÒÑÍË¿î
+		// ï¿½Þ¸Ä¶ï¿½ï¿½ï¿½×´Ì¬Îªï¿½ï¿½ï¿½Ë¿ï¿½
 		orderObj.setOrderState(OrderStateEnum.STATE_9.getIndex());
 		orderObj.setModifyTime(new Date());
 		dbResult = updateByPrimaryKeySelective(orderObj);
 		if (dbResult <= 0) {
-			throw new RuntimeException("ÐÞ¸Ä¶©µ¥×´Ì¬ÎªÒÑÍË¿îÊ§°Ü£¬orderNo=" + orderObj.getOrderNo());
+			throw new RuntimeException("ï¿½Þ¸Ä¶ï¿½ï¿½ï¿½×´Ì¬Îªï¿½ï¿½ï¿½Ë¿ï¿½Ê§ï¿½Ü£ï¿½orderNo=" + orderObj.getOrderNo());
 		}
-		// ÐÞ¸ÄÖ§¸¶×´Ì¬ÎªÒÑÍË¿î
+		// ï¿½Þ¸ï¿½Ö§ï¿½ï¿½×´Ì¬Îªï¿½ï¿½ï¿½Ë¿ï¿½
 		paymentObj.setPayState(PayStateEnum.STATE_5.getIndex());
 		paymentObj.setModifyTime(new Date());
 		dbResult = paymentService.updateByPrimaryKeySelective(paymentObj);
 		if (dbResult <= 0) {
-			throw new RuntimeException("ÐÞ¸ÄÖ§¸¶×´Ì¬ÎªÒÑÍË¿îÊ§°Ü");
+			throw new RuntimeException("ï¿½Þ¸ï¿½Ö§ï¿½ï¿½×´Ì¬Îªï¿½ï¿½ï¿½Ë¿ï¿½Ê§ï¿½ï¿½");
 		}
 		
-		// Èç¹û»¹ÓÐÆäËû²Ù×÷£¬¾ÍÔÚÕâÀïÕâÀïÐ´£¬²»ÒªÐ´ÔÚÍË¿îºóÃæ
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½ÒªÐ´ï¿½ï¿½ï¿½Ë¿ï¿½ï¿½ï¿½ï¿½
 		
-		// ÍË¿îµ½ÓÃ»§balance2
+		// ï¿½Ë¿îµ½ï¿½Ã»ï¿½balance2
 		try {
 			userService.refundUserBalance2(userInfoObj.getId(), orderObj.getNeedPay());
-			logger.info("ÍË¿îbalance2³É¹¦£¬orderNo=" + orderObj.getOrderNo());
+			logger.info("ï¿½Ë¿ï¿½balance2ï¿½É¹ï¿½ï¿½ï¿½orderNo=" + orderObj.getOrderNo());
 		} catch (RuntimeException e) {
-			throw new RuntimeException("ÍË¿îbalance2Ê§°Ü£¬orderNo=" + orderObj.getOrderNo());
+			throw new RuntimeException("ï¿½Ë¿ï¿½balance2Ê§ï¿½Ü£ï¿½orderNo=" + orderObj.getOrderNo());
 		}
 	}
 		/**
-	 * ÍË»ØÓà¶îbalance2
+	 * ï¿½Ë»ï¿½ï¿½ï¿½ï¿½balance2
 	 * @param orderObj
 	 * @param userInfoObj
 	 */
 	private void refundUserBalance2(OrderObj orderObj, PaymentObj paymentObj, UserInfoObj userInfoObj) throws RuntimeException{
 		int dbResult = 0;
-		// ÐÞ¸Ä¶©µ¥×´Ì¬ÎªÒÑÍË¿î
+		// ï¿½Þ¸Ä¶ï¿½ï¿½ï¿½×´Ì¬Îªï¿½ï¿½ï¿½Ë¿ï¿½
 		orderObj.setOrderState(OrderStateEnum.STATE_9.getIndex());
 		orderObj.setModifyTime(new Date());
 		dbResult = updateByPrimaryKeySelective(orderObj);
 		if (dbResult <= 0) {
-			throw new RuntimeException("ÐÞ¸Ä¶©µ¥×´Ì¬ÎªÒÑÍË¿îÊ§°Ü£¬orderNo=" + orderObj.getOrderNo());
+			throw new RuntimeException("ï¿½Þ¸Ä¶ï¿½ï¿½ï¿½×´Ì¬Îªï¿½ï¿½ï¿½Ë¿ï¿½Ê§ï¿½Ü£ï¿½orderNo=" + orderObj.getOrderNo());
 		}
-		// ÐÞ¸ÄÖ§¸¶×´Ì¬ÎªÒÑÍË¿î
+		// ï¿½Þ¸ï¿½Ö§ï¿½ï¿½×´Ì¬Îªï¿½ï¿½ï¿½Ë¿ï¿½
 		paymentObj.setPayState(PayStateEnum.STATE_5.getIndex());
 		paymentObj.setModifyTime(new Date());
 		dbResult = paymentService.updateByPrimaryKeySelective(paymentObj);
 		if (dbResult <= 0) {
-			throw new RuntimeException("ÐÞ¸ÄÖ§¸¶×´Ì¬ÎªÒÑÍË¿îÊ§°Ü");
+			throw new RuntimeException("ï¿½Þ¸ï¿½Ö§ï¿½ï¿½×´Ì¬Îªï¿½ï¿½ï¿½Ë¿ï¿½Ê§ï¿½ï¿½");
 		}
 		
-		// Èç¹û»¹ÓÐÆäËû²Ù×÷£¬¾ÍÔÚÕâÀïÕâÀïÐ´£¬²»ÒªÐ´ÔÚÍË¿îºóÃæ
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ð´ï¿½ï¿½ï¿½ï¿½ÒªÐ´ï¿½ï¿½ï¿½Ë¿ï¿½ï¿½ï¿½ï¿½
 		
-		// ÍË¿îµ½ÓÃ»§balance2
+		// ï¿½Ë¿îµ½ï¿½Ã»ï¿½balance2
 		try {
 			userService.refundUserBalance2(userInfoObj.getId(), orderObj.getNeedPay());
-			logger.info("ÍË¿îbalance2³É¹¦£¬orderNo=" + orderObj.getOrderNo());
+			logger.info("ï¿½Ë¿ï¿½balance2ï¿½É¹ï¿½ï¿½ï¿½orderNo=" + orderObj.getOrderNo());
 		} catch (RuntimeException e) {
-			throw new RuntimeException("ÍË¿îbalance2Ê§°Ü£¬orderNo=" + orderObj.getOrderNo());
+			throw new RuntimeException("ï¿½Ë¿ï¿½balance2Ê§ï¿½Ü£ï¿½orderNo=" + orderObj.getOrderNo());
 		}
 	}
 	

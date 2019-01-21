@@ -1,5 +1,8 @@
-就是要搞破坏，制造冲突，哈哈。我是另一个用户。
-master 修改bug
-fh-2018.11.1
+@Override
+	public OrderObj selectByPrimaryKey(Integer id) {
+		Order order=orderDao.selectByPrimaryKey(id);
+		OrderObj orderObj = Tcms2TcmsObjUtil.convertToOrderObj(order, null);
+		return   orderObj;
+	}
 
 

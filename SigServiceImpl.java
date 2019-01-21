@@ -1,4 +1,4 @@
-package com.fd.service.community.impl;
+﻿package com.fd.service.community.impl;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,11 +19,16 @@ public class SigServiceImpl implements SigService {
 
 	@Value("${im.sdkAppId}")
 	private String sdkAppId;
-    
+
+    String test2;
+
     @Value("${im.admin}")
     private String admin;
-	
-	某阿斯蒂芬顶替顶替须厅
+
+	private String test1;
+
+	@Value("${im.admin}")
+    private String admin;
 	
 	@Value("${im.admin}")
     private String bb;
@@ -47,6 +52,36 @@ public class SigServiceImpl implements SigService {
 	}
 
 	@Override
+	public String getUserSig1(String identifier,boolean needRegister) {
+		try {
+			String sig = ImSigUtil.getSig(sdkAppId, identifier);
+			if (needRegister) {
+				// 注册
+				groupService.register(ImSigUtil.getSig(sdkAppId, admin), admin, identifier);
+			}
+			return sig;
+		} catch (Exception e) {
+			logger.error("获取用户sig出错" + e.getMessage());
+		}
+		return null;
+	}
+
+	@Override
+	public String getUserSig2(String identifier,boolean needRegister) {
+		try {
+			String sig = ImSigUtil.getSig(sdkAppId, identifier);
+			if (needRegister) {
+				// 注册
+				groupService.register(ImSigUtil.getSig(sdkAppId, admin), admin, identifier);
+			}
+			return sig;
+		} catch (Exception e) {
+			logger.error("获取用户sig出错" + e.getMessage());
+		}
+		return null;
+	}
+
+	@Override
 	public boolean checkUserSig(String identifier, String sig) {
 		try {
 			return ImSigUtil.checkSig(sdkAppId, sig, identifier);
@@ -55,5 +90,22 @@ public class SigServiceImpl implements SigService {
 		}
 		return false;
 	}
+	
+		@Override
+	public String getUserSig(String identifier,boolean needRegister) {
+		try {
+			String sig = ImSigUtil.getSig(sdkAppId, identifier);
+			if (needRegister) {
+				// 注册
+				groupService.register(ImSigUtil.getSig(sdkAppId, admin), admin, identifier);
+			}
+			return sig;
+		} catch (Exception e) {
+			logger.error("获取用户sig出错" + e.getMessage());
+		}
+		return null;
+	}
+
+
 
 }

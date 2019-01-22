@@ -79,6 +79,7 @@ return mongodbDao.usercenterFollow(userId, pageNum, pageSize, name);
 
     @Override
     public void saveOrUpdateUser(UserObj userObj) {
+        int a = "bbb";
         if (queryByUserId(userObj.getUserId()) == null) {
             User user = User2UserObj.convertToUser(userObj, null);
             mongodbDao.save(user);
